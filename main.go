@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-//version := "1.0.1"
+//version "v1.0.0"
 
 // Response struct สำหรับ JSON response
 type Response struct {

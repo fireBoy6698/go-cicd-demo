@@ -20,7 +20,9 @@ func helloHandler(w http.ResponseWriter, r *http.Request) {
 		Message: "Hello, World!",
 		Status:  "success",
 	}
-	json.NewEncoder(w).Encode(response)
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		log.Printf("Error encoding response: %v", err)
+	}
 }
 
 // healthHandler - endpoint สำหรับ health check
@@ -31,7 +33,9 @@ func healthHandler(w http.ResponseWriter, r *http.Request) {
 		Message: "Service is healthy",
 		Status:  "ok",
 	}
-	json.NewEncoder(w).Encode(response)
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		log.Printf("Error encoding response: %v", err)
+	}
 }
 
 func main() {

@@ -34,7 +34,6 @@ func healthHandler(w http.ResponseWriter, r *http.Request) {
 		Message: "Service is healthy",
 		Status:  "ok",
 	}
-
 	if err := json.NewEncoder(w).Encode(response); err != nil {
 		log.Printf("Error encoding response: %v", err)
 	}

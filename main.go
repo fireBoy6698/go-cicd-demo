@@ -20,6 +20,7 @@ func helloHandler(w http.ResponseWriter, r *http.Request) {
 		Message: "Hello, World!",
 		Status:  "success",
 	}
+
 	if err := json.NewEncoder(w).Encode(response); err != nil {
 		log.Printf("Error encoding response: %v", err)
 	}

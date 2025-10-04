@@ -74,3 +74,40 @@ func TestHealthHandler(t *testing.T) {
 		t.Errorf("Expected status '%s', got '%s'", expectedStatus, response.Status)
 	}
 }
+
+func TestHelloGoHandler(t *testing.T) {
+	// สร้าง request ทดสอบ
+	req := httptest.NewRequest(http.MethodGet, "/hello-go", nil)
+	w := httptest.NewRecorder()
+
+	// เรียกใช้ handler
+	helloGoHandler(w, req)
+
+	// ตรวจสอบ status code
+	if w.Code != http.StatusOK {
+		t.Errorf("Expected status code %d, got %d", http.StatusOK, w.Code)
+	}
+
+	// ตรวจสอบ Content-Type
+	contentType := w.Header().Get("Content-Type")
+	if contentType != "application/json" {
+		t.Errorf("Expected Content-Type application/json, got %s", contentType)
+	}
+
+	// ตรวจสอบ response body
+	var response Response
+	err := json.NewDecoder(w.Body).Decode(&response)
+	if err != nil {
+		t.Fatalf("Failed to decode response: %v", err)
+	}
+
+	expectedMessage := "Hello, Go!"
+	if response.Message != expectedMessage {
+		t.Errorf("Expected message '%s', got '%s'", expectedMessage, response.Message)
+	}
+
+	expectedStatus := "success"
+	if response.Status != expectedStatus {
+		t.Errorf("Expected status '%s', got '%s'", expectedStatus, response.Status)
+	}
+}

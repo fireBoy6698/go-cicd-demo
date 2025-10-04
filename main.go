@@ -38,9 +38,22 @@ func healthHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// helloGoHandler - endpoint สำหรับ /hello-go
+func helloGoHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	response := Response{
+		Message: "Hello, Go!",
+		Status:  "success",
+	}
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		log.Printf("Error encoding response: %v", err)
+	}
+}
+
 func main() {
 	http.HandleFunc("/hello", helloHandler)
 	http.HandleFunc("/health", healthHandler)
+	http.HandleFunc("/hello-go", helloGoHandler)
 
 	port := ":8080"
 	fmt.Printf("Server starting on port %s\n", port)

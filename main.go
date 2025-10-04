@@ -7,6 +7,8 @@ import (
 	"net/http"
 )
 
+//version "v1.0.0"
+
 // Response struct สำหรับ JSON response
 type Response struct {
 	Message string `json:"message"`

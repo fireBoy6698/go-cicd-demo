@@ -36,28 +36,32 @@ jobs:
     - name: Pull target version
       run: |
         VERSION="${{ github.event.inputs.version }}"
-        echo "Pulling image: ghcr.io/${{ github.repository }}:$VERSION"
-        docker pull ghcr.io/${{ github.repository }}:$VERSION
+        REPO_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+        echo "Pulling image: ghcr.io/$REPO_LOWER:$VERSION"
+        docker pull ghcr.io/$REPO_LOWER:$VERSION
 
     - name: Re-tag as production
       run: |
         VERSION="${{ github.event.inputs.version }}"
-        docker tag ghcr.io/${{ github.repository }}:$VERSION ghcr.io/${{ github.repository }}:production
-        docker tag ghcr.io/${{ github.repository }}:$VERSION ghcr.io/${{ github.repository }}:latest
+        REPO_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+        docker tag ghcr.io/$REPO_LOWER:$VERSION ghcr.io/$REPO_LOWER:production
+        docker tag ghcr.io/$REPO_LOWER:$VERSION ghcr.io/$REPO_LOWER:latest
 
     - name: Push production tags
       run: |
+        REPO_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
         echo "Pushing production and latest tags..."
-        docker push ghcr.io/${{ github.repository }}:production
-        docker push ghcr.io/${{ github.repository }}:latest
+        docker push ghcr.io/$REPO_LOWER:production
+        docker push ghcr.io/$REPO_LOWER:latest
 
     - name: Rollback Summary
       run: |
         VERSION="${{ github.event.inputs.version }}"
+        REPO_LOWER=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
         echo "✅ Rollback completed successfully!"
         echo "📦 Version $VERSION is now tagged as 'production' and 'latest'"
         echo "🔄 Watchtower will automatically update containers within 1 minute"
         echo ""
         echo "Images updated:"
-        echo "  - ghcr.io/${{ github.repository }}:production"
-        echo "  - ghcr.io/${{ github.repository }}:latest"
+        echo "  - ghcr.io/$REPO_LOWER:production"
+        echo "  - ghcr.io/$REPO_LOWER:latest"

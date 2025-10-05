@@ -78,12 +78,25 @@ func helloDogHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// helloBirdHandler - endpoint สำหรับ /hello-bird
+func helloBirdHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	response := Response{
+		Message: "Hello, Bird! 🐦",
+		Status:  "success",
+	}
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		log.Printf("Error encoding response: %v", err)
+	}
+}
+
 func main() {
 	http.HandleFunc("/hello", helloHandler)
 	http.HandleFunc("/health", healthHandler)
 	http.HandleFunc("/hello-go", helloGoHandler)
 	http.HandleFunc("/hello-cat", helloCatHandler)
 	http.HandleFunc("/hello-dog", helloDogHandler)
+	http.HandleFunc("/hello-bird", helloBirdHandler)
 
 	// Get port from environment variable, default to 8080
 	port := os.Getenv("PORT")

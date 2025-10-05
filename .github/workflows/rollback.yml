@@ -1,0 +1,63 @@
+name: Rollback Production
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to rollback to (e.g., v1.0.0)'
+        required: true
+        type: string
+
+jobs:
+  rollback:
+    name: Rollback to Previous Version
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Validate version format
+      run: |
+        VERSION="${{ github.event.inputs.version }}"
+        if [[ ! "$VERSION" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+          echo "Error: Version must be in format v*.*.* (e.g., v1.0.0)"
+          exit 1
+        fi
+        echo "Rolling back to version: $VERSION"
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Log in to GitHub Container Registry
+      uses: docker/login-action@v2
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GHCR_TOKEN }}
+
+    - name: Pull target version
+      run: |
+        VERSION="${{ github.event.inputs.version }}"
+        echo "Pulling image: ghcr.io/${{ github.repository }}:$VERSION"
+        docker pull ghcr.io/${{ github.repository }}:$VERSION
+
+    - name: Re-tag as production
+      run: |
+        VERSION="${{ github.event.inputs.version }}"
+        docker tag ghcr.io/${{ github.repository }}:$VERSION ghcr.io/${{ github.repository }}:production
+        docker tag ghcr.io/${{ github.repository }}:$VERSION ghcr.io/${{ github.repository }}:latest
+
+    - name: Push production tags
+      run: |
+        echo "Pushing production and latest tags..."
+        docker push ghcr.io/${{ github.repository }}:production
+        docker push ghcr.io/${{ github.repository }}:latest
+
+    - name: Rollback Summary
+      run: |
+        VERSION="${{ github.event.inputs.version }}"
+        echo "✅ Rollback completed successfully!"
+        echo "📦 Version $VERSION is now tagged as 'production' and 'latest'"
+        echo "🔄 Watchtower will automatically update containers within 1 minute"
+        echo ""
+        echo "Images updated:"
+        echo "  - ghcr.io/${{ github.repository }}:production"
+        echo "  - ghcr.io/${{ github.repository }}:latest"

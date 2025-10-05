@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 )
 
 //version := "1.0.1"
@@ -84,7 +85,18 @@ func main() {
 	http.HandleFunc("/hello-cat", helloCatHandler)
 	http.HandleFunc("/hello-dog", helloDogHandler)
 
-	port := ":8080"
-	fmt.Printf("Server starting on port %s\n", port)
-	log.Fatal(http.ListenAndServe(port, nil))
+	// Get port from environment variable, default to 8080
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+
+	// Get environment name
+	env := os.Getenv("APP_ENV")
+	if env == "" {
+		env = "development"
+	}
+
+	fmt.Printf("Server starting on port %s (environment: %s)\n", port, env)
+	log.Fatal(http.ListenAndServe(":"+port, nil))
 }

@@ -110,32 +110,46 @@ jobs:
         cache-from: type=gha
         cache-to: type=gha,mode=max
 
+    - name: Install cloudflared
+      run: |
+        curl -L --output cloudflared.deb https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb
+        sudo dpkg -i cloudflared.deb
+
+    - name: Setup SSH config for Cloudflare Tunnel
+      run: |
+        mkdir -p ~/.ssh
+        cat > ~/.ssh/config <<EOF
+        Host dev-server
+          ProxyCommand cloudflared access ssh --hostname ${{ secrets.DEV_SERVER_HOST }}
+        EOF
+        chmod 600 ~/.ssh/config
+
+        # Add SSH key
+        echo "${{ secrets.DEV_SERVER_SSH_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+
     - name: Deploy to Development Server
-      uses: appleboy/ssh-action@v0.1.5
-      with:
-        host: ${{ secrets.DEV_SERVER_HOST }}
-        port: 22
-        username: ${{ secrets.DEV_SERVER_USERNAME }}
-        key: ${{ secrets.DEV_SERVER_SSH_KEY }}
-        script: |
+      run: |
+        ssh -o StrictHostKeyChecking=no ${{ secrets.DEV_SERVER_USERNAME }}@dev-server << 'ENDSSH'
           # Login to GitHub Container Registry
           echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-          
+
           # Pull latest develop image
           docker pull ghcr.io/${{ github.repository }}:develop
-          
+
           # Stop and remove old container
           docker stop dev-app-container || true
           docker rm dev-app-container || true
-          
+
           # Run new container
           docker run -d --name dev-app-container \
             -p 8080:8080 \
             --restart unless-stopped \
             ghcr.io/${{ github.repository }}:develop
-          
+
           # Clean up old images
           docker image prune -f
+        ENDSSH
 
   docker-qa:
     name: Build and Push Docker Image (QA)

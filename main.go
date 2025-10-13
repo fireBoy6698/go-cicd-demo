@@ -82,7 +82,7 @@ func helloDogHandler(w http.ResponseWriter, r *http.Request) {
 func helloBirdHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	response := Response{
-		Message: "Hello, Bird! 🐦🐦 fix bug !!",
+		Message: "Hello, Bird! 🐦🐦",
 		Status:  "success",
 	}
 	if err := json.NewEncoder(w).Encode(response); err != nil {

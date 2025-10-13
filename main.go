@@ -58,7 +58,7 @@ func helloGoHandler(w http.ResponseWriter, r *http.Request) {
 func helloCatHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	response := Response{
-		Message: "Hello, Cat! 🐱",
+		Message: "Hello, Cat! 🐱🐱",
 		Status:  "success",
 	}
 	if err := json.NewEncoder(w).Encode(response); err != nil {

@@ -90,11 +90,14 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GHCR_TOKEN }}
 
+    - name: Set lowercase repository
+      run: echo "REPO_LOWER=$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
     - name: Extract metadata
       id: meta
       uses: docker/metadata-action@v4
       with:
-        images: ghcr.io/${{ github.repository }}
+        images: ghcr.io/${{ env.REPO_LOWER }}
         tags: |
           type=raw,value=develop
           type=sha,prefix=develop-
@@ -135,7 +138,7 @@ jobs:
           echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
           # Pull latest develop image
-          docker pull ghcr.io/${{ github.repository }}:develop
+          docker pull ghcr.io/${{ env.REPO_LOWER }}:develop
 
           # Stop and remove old container
           docker stop dev-app-container || true
@@ -145,7 +148,7 @@ jobs:
           docker run -d --name dev-app-container \
             -p 8080:8080 \
             --restart unless-stopped \
-            ghcr.io/${{ github.repository }}:develop
+            ghcr.io/${{ env.REPO_LOWER }}:develop
 
           # Clean up old images
           docker image prune -f
@@ -171,11 +174,14 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GHCR_TOKEN }}
 
+    - name: Set lowercase repository
+      run: echo "REPO_LOWER=$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
     - name: Extract metadata
       id: meta
       uses: docker/metadata-action@v4
       with:
-        images: ghcr.io/${{ github.repository }}
+        images: ghcr.io/${{ env.REPO_LOWER }}
         tags: |
           type=raw,value=qa
           type=sha,prefix=qa-
@@ -211,11 +217,14 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GHCR_TOKEN }}
 
+    - name: Set lowercase repository
+      run: echo "REPO_LOWER=$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
     - name: Extract metadata
       id: meta
       uses: docker/metadata-action@v4
       with:
-        images: ghcr.io/${{ github.repository }}
+        images: ghcr.io/${{ env.REPO_LOWER }}
         tags: |
           type=raw,value=production
           type=raw,value=latest
